@@ -53,3 +53,6 @@ dkms.conf
 
 # Vscode
 .vscode/
+
+# Custom Lab1
+src/lab1/others

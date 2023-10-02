@@ -33,7 +33,7 @@ _start:
     # ------------------
 
     # set sstatus[SIE] = 1
-    # According to https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf, Figure 4.1
+    # According to https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf, Figure 4.2
     csrr t0, sstatus
     ori t0, t0, 0x2
     csrw sstatus, t0
