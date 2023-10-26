@@ -57,3 +57,4 @@ dkms.conf
 # Custom Lab1
 src/lab1/others
 .DS_Store
+*.DS_Store
