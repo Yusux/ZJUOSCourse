@@ -9,6 +9,7 @@
 //arch/riscv/kernel/proc.c
 
 extern void __dummy();
+extern void __switch_to(struct task_struct* prev, struct task_struct* next);
 
 struct task_struct* idle;           // idle process
 struct task_struct* current;        // 指向当前运行线程的 `task_struct`
@@ -29,6 +30,14 @@ void task_init() {
     // 5. 将 current 和 task[0] 指向 idle
 
     /* YOUR CODE HERE */
+    idle = (struct task_struct*)kalloc();
+    idle->state = TASK_RUNNING;
+    idle->counter = 0;
+    idle->priority = 0;
+    idle->pid = 0;
+
+    current = idle;
+    task[0] = idle;
 
     // 1. 参考 idle 的设置, 为 task[1] ~ task[NR_TASKS - 1] 进行初始化
     // 2. 其中每个线程的 state 为 TASK_RUNNING, 此外，为了单元测试的需要，counter 和 priority 进行如下赋值：
@@ -38,6 +47,18 @@ void task_init() {
     // 4. 其中 `ra` 设置为 __dummy （见 4.3.2）的地址,  `sp` 设置为 该线程申请的物理页的高地址
 
     /* YOUR CODE HERE */
+    for (int i = 1; i < NR_TASKS; i++) {
+        struct task_struct* task_ptr = (struct task_struct*)kalloc();
+        task_ptr->state = TASK_RUNNING;
+        task_ptr->counter = task_test_counter[i];
+        task_ptr->priority = task_test_priority[i];
+        task_ptr->pid = i;
+
+        task_ptr->thread.ra = (uint64)__dummy;
+        task_ptr->thread.sp = (uint64)task_ptr + PGSIZE;
+
+        task[i] = task_ptr;
+    }
 
     printk("...proc_init done!\n");
 }
@@ -59,3 +80,103 @@ void dummy() {
         }
     }
 }
+
+
+void switch_to(struct task_struct* next) {
+    // 1. 判断下一个执行的线程 next 与当前的线程 current 是否为同一个线程，如果是同一个线程，则无需做任何处理，否则调用 __switch_to 进行线程切换。 
+
+    /* YOUR CODE HERE */
+    if (next != current) {
+        struct task_struct* prev = current;
+        current = next;
+        printk("switch to [PID = %d, COUNTER = %d, PRIORITY = %d]\n", current->pid, current->counter, current->priority);
+        __switch_to(prev, next);
+    }
+}
+
+void do_timer(void) {
+    // 1. 如果当前线程是 idle 线程 直接进行调度
+    // 2. 如果当前线程不是 idle 对当前线程的运行剩余时间减1 若剩余时间仍然大于0 则直接返回 否则进行调度
+
+    /* YOUR CODE HERE */
+    if (current == idle) {
+        schedule();
+    } else {
+        /* YOUR CODE HERE */
+        current->counter--;
+        if (current->counter <= 0) {
+            schedule();
+        }
+    }
+}
+
+#ifdef SJF
+// 短作业优先调度算法
+void schedule(void) {
+    /* YOUR CODE HERE */
+    struct task_struct ** task_start = &task[0];
+    struct task_struct ** p;
+    int next;
+    uint64 counter;
+
+    while (1) {
+        p = task_start;
+        next = NR_TASKS;
+        counter = -1;
+        for (int i = 1; i < NR_TASKS; ++i) {
+            if ((*++p) && (*p)->state == TASK_RUNNING && (*p)->counter > 0 && (*p)->counter < counter) {
+                counter = (*p)->counter;
+                next = i;
+            }
+        }
+
+        // if no replace happens, means all running tasks have counter = 0
+        if (counter != -1) {
+            break;
+        }
+
+        // ignore idle since p is now pointing to task[1]
+        for ( ; p > task_start; --p) {
+            if (*p) {
+                (*p)->counter = rand() % 13 + 1;
+            }
+        }
+    }
+
+    switch_to(task[next]);
+}
+#else
+// 优先级调度算法
+void schedule(void) {
+    /* YOUR CODE HERE */
+    struct task_struct ** task_end = &task[NR_TASKS];
+    struct task_struct ** p;
+    int next;
+    uint64 counter;
+
+    while (1) {
+        p = task_end;
+        next = NR_TASKS;
+        counter = 0;
+        for (int i = NR_TASKS-1; i > 0; --i) {
+            if ((*--p) && (*p)->state == TASK_RUNNING && (*p)->counter > counter) {
+                counter = (*p)->counter;
+                next = i;
+            }
+        }
+
+        if (counter > 0) {
+            break;
+        }
+
+        // ignore idle since p is now pointing to task[1]
+        for ( ; p < task_end; ++p) {
+            if (*p) {
+                (*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
+            }
+        }
+    }
+
+    switch_to(task[next]);
+}
+#endif
