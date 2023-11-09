@@ -60,6 +60,14 @@ void task_init() {
         task[i] = task_ptr;
     }
 
+    for (int i = 1; i < NR_TASKS; i++) {
+    #ifdef SJF
+        printk("SET [PID = %d COUNTER = %d]\n", task[i]->pid, task[i]->counter);
+    #else
+        printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", task[i]->pid, task[i]->priority, task[i]->counter);
+    #endif
+    }
+
     printk("...proc_init done!\n");
 }
 
@@ -103,8 +111,14 @@ void do_timer(void) {
         schedule();
     } else {
         /* YOUR CODE HERE */
+        /*
+        // 因为在 dummy 中已经对 counter 进行了脏的修改，所以这里不再应该先对 counter 先进行减 1 操作，再进行判断
         current->counter--;
-        if (current->counter <= 0) {
+        if (current->counter == 0) {
+            schedule();
+        }
+        */
+        if (current->counter == 0 || --(current->counter) == 0) {
             schedule();
         }
     }
@@ -139,6 +153,7 @@ void schedule(void) {
         for ( ; p > task_start; --p) {
             if (*p) {
                 (*p)->counter = rand() % 13 + 1;
+                printk("SET [PID = %d COUNTER = %d]\n", (*p)->pid, (*p)->counter);
             }
         }
     }
@@ -173,6 +188,7 @@ void schedule(void) {
         for ( ; p < task_end; ++p) {
             if (*p) {
                 (*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
+                printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", (*p)->pid, (*p)->priority, (*p)->counter);
             }
         }
     }
