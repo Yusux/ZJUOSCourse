@@ -1,0 +1,943 @@
+root@14d61f471d8a:~/OS/os23fall-stu/src/lab2# gdb-multiarch vmlinux 
+GNU gdb (Ubuntu 12.1-0ubuntu1~22.04) 12.1
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from vmlinux...
+(gdb) target remote: 1234
+Remote debugging using : 1234
+0x0000000000001000 in ?? ()
+(gdb) break _traps
+Breakpoint 1 at 0x80200054: file entry.S, line 13.
+(gdb) break trap_handler
+Breakpoint 2 at 0x80200a64: file trap.c, line 15.
+(gdb) break do_timer
+Breakpoint 3 at 0x802007b4: file proc.c, line 110.
+(gdb) break schedule
+Breakpoint 4 at 0x80200834: file proc.c, line 131.
+(gdb) break switch_to
+Breakpoint 5 at 0x8020070c: file proc.c, line 97.
+(gdb) break __switch_to
+Breakpoint 6 at 0x8020017c: file entry.S, line 114.
+(gdb) display $ra
+1: $ra = (void (*)()) 0x0
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80200b04 <test+28>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149583620) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 4, schedule () at proc.c:131
+131         struct task_struct ** task_start = &task[0];
+1: $ra = (void (*)()) 0x802007d4 <do_timer+48>
+(gdb) c
+Continuing.
+
+Breakpoint 5, switch_to (next=0x87ffe000) at proc.c:97
+97          if (next != current) {
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) c
+Continuing.
+
+Breakpoint 6, __switch_to () at entry.S:114
+114         sd ra, 48(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) stepi
+115         sd sp, 56(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+116         sd s0, 64(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+117         sd s1, 72(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+118         sd s2, 80(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+119         sd s3, 88(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+120         sd s4, 96(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+121         sd s5, 104(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+122         sd s6, 112(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+123         sd s7, 120(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+124         sd s8, 128(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+125         sd s9, 136(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+126         sd s10, 144(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+127         sd s11, 152(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+132         ld ra, 48(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+133         ld sp, 56(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+__switch_to () at entry.S:134
+134         ld s0, 64(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+135         ld s1, 72(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+136         ld s2, 80(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+137         ld s3, 88(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+138         ld s4, 96(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+139         ld s5, 104(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+140         ld s6, 112(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+141         ld s7, 120(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+142         ld s8, 128(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+143         ld s9, 136(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+144         ld s10, 144(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+145         ld s11, 152(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+147         ret
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+__dummy () at entry.S:103
+103         la t0, dummy
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+0x0000000080200170      103         la t0, dummy
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+104         csrw sepc, t0
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+107         sret
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 4, schedule () at proc.c:131
+131         struct task_struct ** task_start = &task[0];
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) c
+Continuing.
+
+Breakpoint 5, switch_to (next=0x87ffd000) at proc.c:97
+97          if (next != current) {
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) c
+Continuing.
+
+Breakpoint 6, __switch_to () at entry.S:114
+114         sd ra, 48(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) stepi
+115         sd sp, 56(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+116         sd s0, 64(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+117         sd s1, 72(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+118         sd s2, 80(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+119         sd s3, 88(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+120         sd s4, 96(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+121         sd s5, 104(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+122         sd s6, 112(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+123         sd s7, 120(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+124         sd s8, 128(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+125         sd s9, 136(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+126         sd s10, 144(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+127         sd s11, 152(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+132         ld ra, 48(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+133         ld sp, 56(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+__switch_to () at entry.S:134
+134         ld s0, 64(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+135         ld s1, 72(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+136         ld s2, 80(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+137         ld s3, 88(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+138         ld s4, 96(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+139         ld s5, 104(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+140         ld s6, 112(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+141         ld s7, 120(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+142         ld s8, 128(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+143         ld s9, 136(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+144         ld s10, 144(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+145         ld s11, 152(a1)
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+147         ret
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+__dummy () at entry.S:103
+103         la t0, dummy
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+0x0000000080200170      103         la t0, dummy
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+104         csrw sepc, t0
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+107         sret
+1: $ra = (void (*)()) 0x8020016c <__dummy>
+(gdb) 
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 4, schedule () at proc.c:131
+131         struct task_struct ** task_start = &task[0];
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) c
+Continuing.
+
+Breakpoint 5, switch_to (next=0x87ffd000) at proc.c:97
+97          if (next != current) {
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 1, _traps () at entry.S:13
+13          addi sp, sp, -248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) c
+Continuing.
+
+Breakpoint 2, trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:15
+15          if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) c
+Continuing.
+
+Breakpoint 3, do_timer () at proc.c:110
+110         if (current == idle) {
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) c
+Continuing.
+
+Breakpoint 4, schedule () at proc.c:131
+131         struct task_struct ** task_start = &task[0];
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) c
+Continuing.
+
+Breakpoint 5, switch_to (next=0x87ffe000) at proc.c:97
+97          if (next != current) {
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) c
+Continuing.
+
+Breakpoint 6, __switch_to () at entry.S:114
+114         sd ra, 48(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) stepi
+115         sd sp, 56(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+116         sd s0, 64(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+117         sd s1, 72(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+118         sd s2, 80(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+119         sd s3, 88(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+120         sd s4, 96(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+121         sd s5, 104(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+122         sd s6, 112(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+123         sd s7, 120(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+124         sd s8, 128(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+125         sd s9, 136(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+126         sd s10, 144(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+127         sd s11, 152(a0)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+132         ld ra, 48(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+133         ld sp, 56(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+__switch_to () at entry.S:134
+134         ld s0, 64(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+135         ld s1, 72(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+136         ld s2, 80(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+137         ld s3, 88(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+138         ld s4, 96(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+139         ld s5, 104(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+140         ld s6, 112(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+141         ld s7, 120(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+142         ld s8, 128(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+143         ld s9, 136(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+144         ld s10, 144(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+145         ld s11, 152(a1)
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+147         ret
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+switch_to (next=0x87ffd000) at proc.c:103
+103     }
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+0x0000000080200794      103     }
+1: $ra = (void (*)()) 0x80200790 <switch_to+152>
+(gdb) 
+0x0000000080200798      103     }
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) 
+0x000000008020079c      103     }
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) 
+0x00000000802007a0      103     }
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) 
+schedule () at proc.c:162
+162     }
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) 
+0x0000000080200990      162     }
+1: $ra = (void (*)()) 0x8020098c <schedule+360>
+(gdb) 
+0x0000000080200994      162     }
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) 
+0x0000000080200998      162     }
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) 
+0x000000008020099c      162     }
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) 
+do_timer () at proc.c:125
+125     }
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) 
+0x0000000080200814      125     }
+1: $ra = (void (*)()) 0x80200810 <do_timer+108>
+(gdb) 
+0x0000000080200818      125     }
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) 
+0x000000008020081c      125     }
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) 
+0x0000000080200820      125     }
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) 
+trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:21
+21              printk("[S] Supervisor Mode Timer Interrupt\n");
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) 
+0x0000000080200a88      21              printk("[S] Supervisor Mode Timer Interrupt\n");
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) 
+0x0000000080200a8c      21              printk("[S] Supervisor Mode Timer Interrupt\n");
+1: $ra = (void (*)()) 0x80200a84 <trap_handler+56>
+(gdb) 
+printk (s=0x87ffe000 "") at printk.c:106
+106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) nexti
+0x0000000080201038      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x000000008020103c      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201040      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201044      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201048      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x000000008020104c      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201050      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201054      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201058      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x000000008020105c      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201060      106     int printk(const char* s, ...) {
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+107         int res = 0;
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+109         va_start(vl, s);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x000000008020106c      109         va_start(vl, s);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201070      109         va_start(vl, s);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201074      109         va_start(vl, s);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201078      109         va_start(vl, s);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201080      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201084      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201088      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x000000008020108c      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201090      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080201094      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80201094 <printk+96>
+(gdb) 
+0x0000000080201098      110         res = vprintfmt(putc, s, vl);
+1: $ra = (void (*)()) 0x80201094 <printk+96>
+(gdb) 
+112         return res;
+1: $ra = (void (*)()) 0x80201094 <printk+96>
+(gdb) 
+113     }
+1: $ra = (void (*)()) 0x80201094 <printk+96>
+(gdb) 
+0x00000000802010a4      113     }
+1: $ra = (void (*)()) 0x80201094 <printk+96>
+(gdb) 
+0x00000000802010a8      113     }
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x00000000802010ac      113     }
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x00000000802010b0      113     }
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+trap_handler (scause=9223372036854775813, sepc=2149587372) at trap.c:24
+24      }
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080200a94      24      }
+1: $ra = (void (*)()) 0x80200a90 <trap_handler+68>
+(gdb) 
+0x0000000080200a98      24      }
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+0x0000000080200a9c      24      }
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+0x0000000080200aa0      24      }
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+_traps () at entry.S:57
+57          ld t0, 240(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+58          csrw sepc, t0
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+59          ld x31, 232(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+60          ld x30, 224(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+61          ld x29, 216(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+62          ld x28, 208(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+63          ld x27, 200(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+64          ld x26, 192(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+65          ld x25, 184(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+66          ld x24, 176(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+67          ld x23, 168(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+68          ld x22, 160(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+69          ld x21, 152(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+70          ld x20, 144(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+71          ld x19, 136(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+72          ld x18, 128(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+73          ld x17, 120(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+74          ld x16, 112(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+75          ld x15, 104(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+76          ld x14, 96(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+77          ld x13, 88(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+78          ld x12, 80(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+79          ld x11, 72(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+80          ld x10, 64(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+81          ld x9, 56(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+82          ld x8, 48(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+83          ld x7, 40(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+84          ld x6, 32(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+85          ld x5, 24(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+86          ld x4, 16(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+87          ld x3, 8(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+88          ld x1, 0(sp)
+1: $ra = (void (*)()) 0x802000e4 <_traps+144>
+(gdb) 
+89          addi sp, sp, 248
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb) 
+_traps () at entry.S:94
+94          sret
+1: $ra = (void (*)()) 0x80201904 <schedule_test+828>
+(gdb)
