@@ -1,6 +1,6 @@
 #include "defs.h"
 #include "mm.h"
-#include <string.h>
+#include "string.h"
 
 /* early_pgtbl: 用于 setup_vm 进行 1GB 的 映射。 */
 unsigned long  early_pgtbl[512] __attribute__((__aligned__(0x1000)));
@@ -54,26 +54,24 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm)
         if ((*current_pte & PTE_V) == 0) {  // check if page table entry is valid
             // if not valid, allocate a page for page table
             uint64 *new_pgtbl = (uint64 *)(kalloc() - PA2VA_OFFSET);    // get physical address of new page table
-            memset(new_pgtbl, 0x0, PGSIZE);
             *current_pte = (PPN((uint64)new_pgtbl) << 10) | PTE_V;
         }
 
         // second level page table
-        current_pgtbl = (uint64 *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);  // get second level page table
-        current_index = VPN1(va);                                               // get index of second level page table
-        current_pte = &current_pgtbl[current_index];                            // get page table entry
+        current_pgtbl = (uint64 *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);    // get second level page table
+        current_index = VPN1(va);                                                   // get index of second level page table
+        current_pte = &current_pgtbl[current_index];                                // get page table entry
 
         if ((*current_pte & PTE_V) == 0) {  // check if page table entry is valid
             // if not valid, allocate a page for page table
             uint64 *new_pgtbl = (uint64 *)(kalloc() - PA2VA_OFFSET);    // get physical address of new page table
-            memset(new_pgtbl, 0x0, PGSIZE);
             *current_pte = (PPN((uint64)new_pgtbl) << 10) | PTE_V;
         }
 
         // third level page table
-        current_pgtbl = (uint64 *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);  // get third level page table
-        current_index = VPN0(va);                                               // get index of third level page table
-        current_pte = &current_pgtbl[current_index];                            // get page table entry
+        current_pgtbl = (uint64 *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);    // get third level page table
+        current_index = VPN0(va);                                                   // get index of third level page table
+        current_pte = &current_pgtbl[current_index];                                // get page table entry
 
         *current_pte = (PPN(pa) << 10) | perm | PTE_V;                          // cover page table entry
 
@@ -94,11 +92,13 @@ void setup_vm_final(void) {
     // mapping kernel text X|-|R|V
     va += OPENSBI_SIZE;
     create_mapping(swapper_pg_dir, va, stext, srodata - stext, PTE_R | PTE_X | PTE_V);
+    // printk("The virtual address of _stext is %lx\n", va);
 
     // mapping kernel rodata -|-|R|V
     va += srodata - stext;
     create_mapping(swapper_pg_dir, va, srodata, sdata - srodata, PTE_R | PTE_V);
-
+    // printk("The virtual address of _srodata is %lx\n", va);
+    
     // mapping other memory -|W|R|V
     va += sdata - srodata;
     create_mapping(swapper_pg_dir, va, sdata, PHY_END - sdata, PTE_R | PTE_W | PTE_V);
@@ -112,6 +112,15 @@ void setup_vm_final(void) {
 
     // flush icache
     asm volatile("fence.i");
+    
+    /*
+    // check if .text and .rodata has R permission
+    printk("The value of _stext is %lx\n", *(uint64 *)_stext);
+    printk("The value of _srodata is %lx\n", *(uint64 *)_srodata);
+    // check if .text and .rodata has W permission
+    *(uint64 *)_stext = 0xdeadbeef;
+    *(uint64 *)_srodata = 0xdeadbeef;
+    */
 
     return;
 }

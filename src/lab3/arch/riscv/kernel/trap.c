@@ -11,7 +11,7 @@ void trap_handler(unsigned long scause, unsigned long sepc) {
     // 其他interrupt / exception 可以直接忽略
 
     // According to https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf, Table 4.2
-    // printk("[S] Supervisor Mode Cause: %lx\n", scause);
+    // printk("[S] Supervisor Mode Cause: %lx, sepc: %lx\n", scause, sepc);
     if ((scause & 0x8000000000000000L) && (scause & 0xff) == 5) {
         // Timer interrupt occurs, set next timer interrupt
         clock_set_next_event();

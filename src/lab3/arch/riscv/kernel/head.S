@@ -12,6 +12,29 @@ _start:
 
     # ------------------
 
+    # let sp point to the top of the stack
+    la sp, boot_stack_top
+    li s0, 0xffffffdf80000000   # PA2VA_OFFSET
+    sub sp, sp, s0              # sub offset to get physical address
+                                # rather than virtual address got from GOT
+
+    # do work after stack is ready
+
+    # virtual memory setup
+    jal setup_vm
+    jal relocate
+
+    # call mm_init to init memory system
+    jal mm_init
+
+    # call setup_vm_final to setup page table
+    jal setup_vm_final
+
+    # call task_init to init tasks
+    jal task_init
+
+    # ------------------
+
     # set stvec = _traps
     la t0, _traps
     csrw stvec, t0
@@ -42,29 +65,6 @@ _start:
     ori t0, t0, 0x2
     csrw sstatus, t0
 
-    # ------------------
-
-    # let sp point to the top of the stack
-    la sp, boot_stack_top
-    li s0, 0xffffffdf80000000   # PA2VA_OFFSET
-    sub sp, sp, s0              # sub offset to get physical address
-                                # rather than virtual address got from GOT
-
-    # do work after stack is ready
-
-    # virtual memory setup
-    jal setup_vm
-    jal relocate
-
-    # call mm_init to init memory system
-    jal mm_init
-
-    # call setup_vm_final to setup page table
-    jal setup_vm_final
-
-    # call task_init to init tasks
-    jal task_init
-
     # jump to kernel entry
     jal zero, start_kernel
 
@@ -82,6 +82,10 @@ relocate:
     add ra, ra, s0
     add sp, sp, s0
 
+    # # set stvec to symbol _after_satp
+    # la t0, _after_satp
+    # csrw stvec, t0
+
     # set satp with early_pgtbl
 
     ###################### 
@@ -95,6 +99,7 @@ relocate:
     csrw satp, t0
 
     # flush tlb
+# _after_satp:
     sfence.vma zero, zero
 
     # flush icache
