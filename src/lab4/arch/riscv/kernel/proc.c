@@ -99,7 +99,7 @@ void task_init() {
         uint64 user_stack = (uint64)alloc_page();
         va = USER_END - PGSIZE;
         pa = user_stack - PA2VA_OFFSET;
-        create_mapping((uint64 *)pgd, va, pa, PGSIZE, perm);
+        create_mapping((uint64 *)pgd, va, pa, PGSIZE, perm & (~PTE_X));
 
         // 设置页表
         task_ptr->pgd = (pagetable_t)(pgd - PA2VA_OFFSET);
