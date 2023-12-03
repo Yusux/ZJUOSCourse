@@ -31,5 +31,5 @@ void trap_handler(unsigned long scause, unsigned long sepc, struct pt_regs *regs
         }
     }
 
-    printk("[S] Supervisor Mode Cause: %lx, sepc: %lx UNHANDLED\n", scause, sepc);
+    // printk("[S] Supervisor Mode Cause: %lx, sepc: %lx UNHANDLED\n", scause, sepc);
 }

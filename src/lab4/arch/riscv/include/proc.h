@@ -38,7 +38,7 @@ struct task_struct {
 
     struct thread_struct thread;
 
-    pagetable_t pgd;
+    pagetable_t pgd;    // 第一级页表
 };
 
 /* 线程初始化 创建 NR_TASKS 个线程 */

@@ -47,14 +47,14 @@
 #define PPN1(addr) (((addr) >> 21) & 0x1ff)
 #define PPN2(addr) (((addr) >> 30) & 0x3ffffff)
 
-#define PTE_V (0x001)
-#define PTE_R (0x002)
-#define PTE_W (0x004)
-#define PTE_X (0x008)
-#define PTE_U (0x010)
-#define PTE_G (0x020)
-#define PTE_A (0x040)
-#define PTE_D (0x080)
+#define PTE_V (0x01)
+#define PTE_R (0x02)
+#define PTE_W (0x04)
+#define PTE_X (0x08)
+#define PTE_U (0x10)
+#define PTE_G (0x20)
+#define PTE_A (0x40)
+#define PTE_D (0x80)
 
 #define USER_START (0x0000000000000000) // user space start virtual address
 #define USER_END   (0x0000004000000000) // user space end virtual address
@@ -62,5 +62,9 @@
 #define SSTATUS_SUM (1 << 18)
 #define SSTATUS_SPIE (1 << 5)
 #define SSTATUS_SPP (1 << 8)
+
+#define P_FLAGS_X (0x1)
+#define P_FLAGS_W (0x2)
+#define P_FLAGS_R (0x4)
 
 #endif
