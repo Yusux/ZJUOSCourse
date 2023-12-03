@@ -1,6 +1,7 @@
 // arch/riscv/include/proc.h
-
+#pragma once
 #include "types.h"
+#include "stdint.h"
 
 #define NR_TASKS  (1 + 4) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
 
@@ -9,29 +10,35 @@
 #define PRIORITY_MIN 1
 #define PRIORITY_MAX 10
 
+typedef unsigned long* pagetable_t;
+
 /* 用于记录 `线程` 的 `内核栈与用户栈指针` */
 /* (lab2 中无需考虑, 在这里引入是为了之后实验的使用) */
 struct thread_info {
-    uint64 kernel_sp;
-    uint64 user_sp;
+    uint64_t kernel_sp;
+    uint64_t user_sp;
 };
 
 /* 线程状态段数据结构 */
 struct thread_struct {
-    uint64 ra;
-    uint64 sp;
-    uint64 s[12];
+    uint64_t ra;
+    uint64_t sp;
+    uint64_t s[12];
+
+    uint64_t sepc, sstatus, sscratch;
 };
 
 /* 线程数据结构 */
 struct task_struct {
     struct thread_info thread_info;
-    uint64 state;    // 线程状态
-    uint64 counter;  // 运行剩余时间
-    uint64 priority; // 运行优先级 1最低 10最高
-    uint64 pid;      // 线程id
+    uint64_t state;    // 线程状态
+    uint64_t counter;  // 运行剩余时间
+    uint64_t priority; // 运行优先级 1最低 10最高
+    uint64_t pid;      // 线程id
 
     struct thread_struct thread;
+
+    pagetable_t pgd;
 };
 
 /* 线程初始化 创建 NR_TASKS 个线程 */
