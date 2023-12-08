@@ -2,7 +2,7 @@
 #include "printk.h"
 
 // implement sys_write here
-size_t sys_write(unsigned int fd, const char* buf, size_t count) {
+size_t sys_write(unsigned int fd, const char *buf, size_t count) {
     if (fd == 1) {
         for (size_t i = 0; i < count; i++) {
             printk("%c", buf[i]);

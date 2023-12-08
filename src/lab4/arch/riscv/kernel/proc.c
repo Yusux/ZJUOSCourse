@@ -9,12 +9,12 @@
 
 //arch/riscv/kernel/proc.c
 
-extern void __switch_to(struct task_struct* prev, struct task_struct* next);
-extern uint64_t load_program(struct task_struct* task);
+extern void __switch_to(struct task_struct *prev, struct task_struct *next);
+extern uint64_t load_program(struct task_struct *task);
 
-struct task_struct* idle;           // idle process
-struct task_struct* current;        // 指向当前运行线程的 `task_struct`
-struct task_struct* task[NR_TASKS]; // 线程数组, 所有的线程都保存在此
+struct task_struct *idle;           // idle process
+struct task_struct *current;        // 指向当前运行线程的 `task_struct`
+struct task_struct *task[NR_TASKS]; // 线程数组, 所有的线程都保存在此
 
 /**
  * new content for unit test of 2023 OS lab2
@@ -50,7 +50,7 @@ void task_init() {
 
     /* YOUR CODE HERE */
     for (int i = 1; i < NR_TASKS; i++) {
-        struct task_struct* task_ptr = (struct task_struct*)kalloc();
+        struct task_struct *task_ptr = (struct task_struct*)kalloc();
         task_ptr->state = TASK_RUNNING;
         task_ptr->counter = task_test_counter[i];
         task_ptr->priority = task_test_priority[i];
@@ -80,7 +80,7 @@ void switch_to(struct task_struct* next) {
 
     /* YOUR CODE HERE */
     if (next != current) {
-        struct task_struct* prev = current;
+        struct task_struct *prev = current;
         current = next;
         printk("[S-MODE] switch to [PID = %d, COUNTER = %d, PRIORITY = %d]\n", current->pid, current->counter, current->priority);
         __switch_to(prev, next);
@@ -113,8 +113,8 @@ void do_timer(void) {
 // 短作业优先调度算法
 void schedule(void) {
     /* YOUR CODE HERE */
-    struct task_struct ** task_start = &task[0];
-    struct task_struct ** p;
+    struct task_struct **task_start = &task[0];
+    struct task_struct **p;
     int next;
     uint64 counter;
 
@@ -149,8 +149,8 @@ void schedule(void) {
 // 优先级调度算法
 void schedule(void) {
     /* YOUR CODE HERE */
-    struct task_struct ** task_end = &task[NR_TASKS];
-    struct task_struct ** p;
+    struct task_struct **task_end = &task[NR_TASKS];
+    struct task_struct **p;
     int next;
     uint64 counter;
 

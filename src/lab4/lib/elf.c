@@ -5,9 +5,9 @@
 #include "proc.h"
 #include "printk.h"
 
-extern unsigned long swapper_pg_dir[];  // kernel pagetable 根目录， 在 setup_vm_final 进行映射。
-extern char _sramdisk[];                // ELF 文件在内存中的起始地址
-extern char _eramdisk[];                // ELF 文件在内存中的结束地址
+extern unsigned long swapper_pg_dir[];  // kernel pagetable root, mapped in setup_vm_final
+extern char _sramdisk[];                // start address of the ELF file in memory
+extern char _eramdisk[];                // end address of the ELF file in memory
 
 extern void __dummy();
 extern void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm);
@@ -26,8 +26,8 @@ uint64_t trans_p_flags(Elf64_Word p_flags) {
     return perm;
 }
 
-uint64_t load_program(struct task_struct* task) {
-    Elf64_Ehdr* ehdr = (Elf64_Ehdr*)_sramdisk;
+uint64_t load_program(struct task_struct *task) {
+    Elf64_Ehdr *ehdr = (Elf64_Ehdr*)_sramdisk;
 
     // check magic number
     if (!(ehdr->e_ident[0]  == 0x7f &&
@@ -53,15 +53,17 @@ uint64_t load_program(struct task_struct* task) {
     uint64_t phdr_start = (uint64_t)ehdr + ehdr->e_phoff;
     int phdr_cnt = ehdr->e_phnum;
 
-    Elf64_Phdr* phdr;
+    Elf64_Phdr *phdr;
     int load_phdr_cnt = 0;
 
-    // 为每个进程创建属于它自己的页表
+    // set up page table for user program
     uint64 pgd = (uint64)alloc_page();
-    // 设置页表
+    // set up task->pgd
     task->pgd = (pagetable_t)(pgd - PA2VA_OFFSET);
-    // 为了避免 U-Mode 和 S-Mode 切换的时候切换页表，
-    // 我们将内核页表 （ swapper_pg_dir ） 复制到每个进程的页表中。
+    // in order to avoid switching page table
+    // when switching between U-Mode and S-Mode,
+    // we copy the kernel page table (swapper_pg_dir)
+    // to the page table of each process
     memcpy((void *)pgd, swapper_pg_dir, PGSIZE);
 
     for (int i = 0; i < phdr_cnt; i++) {
