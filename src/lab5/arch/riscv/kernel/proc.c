@@ -181,3 +181,39 @@ void schedule(void) {
     switch_to(task[next]);
 }
 #endif
+
+void do_mmap(struct task_struct *task, uint64_t addr, uint64_t length, uint64_t flags,
+    uint64_t vm_content_offset_in_file, uint64_t vm_content_size_in_file) {
+    // 为 task 指定一个新的 vma，
+    // 通过将 vmas 后的区域向后移动一个 vma 的大小来实现
+    struct vm_area_struct *vma = &task->vmas[task->vma_cnt++];
+
+    // 设置 vma 的各个域
+    uint64_t start_page_addr = PGROUNDDOWN(addr);
+    uint64_t end_page_addr = PGROUNDUP(addr + length);
+
+    vma->vm_start = start_page_addr;
+    vma->vm_end = end_page_addr;
+    vma->vm_flags = flags;
+    vma->vm_content_offset_in_file = vm_content_offset_in_file;
+    vma->vm_content_size_in_file = vm_content_size_in_file;
+}
+
+struct vm_area_struct *find_vma(struct task_struct *task, uint64_t addr) {
+    // 根据 vma_cnt 所记录的大小，遍历 task 的 vma 数组
+    // 如果找到了包含 addr 的 vma，则返回该 vma，否则返回 NULL
+    for (int i = 0; i < task->vma_cnt; i++) {
+        // 由于内存映射的地址空间是连续的，所以只需要判断 addr
+        // 是否在 vma 的地址空间 [vm_start, vm_end) 中即可
+        if (task->vmas[i].vm_start <= addr && addr < task->vmas[i].vm_end) {
+            return &task->vmas[i];
+        }
+    }
+    return NULL;
+}
+
+uint64_t trans_vm_flags(uint64_t vm_flags) {
+    // 将 VMA 的 flags 转换为 PTE 的 flags
+    // 排除最低位的 VM_ANONYM 标志位
+    return vm_flags & 0xe;
+}

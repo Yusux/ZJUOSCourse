@@ -22,6 +22,9 @@
                     : "memory");                    \
 })
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) > (b) ? (b) : (a))
+
 #define PHY_START (0x0000000080000000)
 #define PHY_SIZE  (128 * 1024 * 1024)   // 128MB，QEMU 默认内存大小
 #define PHY_END   (PHY_START + PHY_SIZE)

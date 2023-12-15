@@ -35,7 +35,7 @@ void setup_vm(void) {
 /* 不要修改该接口的参数和返回值 */
 void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm) {
     /*
-    pgtbl 为根页表的基地址
+    pgtbl 为根页表的基地址，是虚拟地址
     va, pa 为需要映射的虚拟地址、物理地址
     sz 为映射的大小，单位为字节
     perm 为映射的权限 (即页表项的低 8 位)

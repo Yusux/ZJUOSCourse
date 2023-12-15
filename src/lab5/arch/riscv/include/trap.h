@@ -16,4 +16,6 @@ void clock_set_next_event();
 
 void trap_handler(unsigned long scause, unsigned long sepc, struct pt_regs *regs);
 
+void do_page_fault(struct pt_regs *regs);
+
 #endif

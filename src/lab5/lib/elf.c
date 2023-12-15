@@ -7,12 +7,12 @@
 
 extern unsigned long swapper_pg_dir[];  // kernel pagetable root, mapped in setup_vm_final
 extern char _sramdisk[];                // start address of the ELF file in memory
-extern char _eramdisk[];                // end address of the ELF file in memory
 
 extern void __dummy();
-extern void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm);
+extern void create_mapping(uint64_t *pgtbl, uint64_t va, uint64_t pa, uint64_t sz, uint64_t perm);
 
 uint64_t trans_p_flags(Elf64_Word p_flags) {
+    // convert ELF flags to PTE/VM XWR flags
     uint64_t perm = 0;
     if (p_flags & P_FLAGS_R) {
         perm |= PTE_R;
@@ -57,7 +57,7 @@ uint64_t load_program(struct task_struct *task) {
     int load_phdr_cnt = 0;
 
     // set up page table for user program
-    uint64 pgd = (uint64)alloc_page();
+    uint64_t pgd = (uint64_t)alloc_page();
     // set up task->pgd
     task->pgd = (pagetable_t)(pgd - PA2VA_OFFSET);
     // in order to avoid switching page table
@@ -70,35 +70,22 @@ uint64_t load_program(struct task_struct *task) {
         phdr = (Elf64_Phdr*)(phdr_start + sizeof(Elf64_Phdr) * i);
         if (phdr->p_type == PT_LOAD) {
             load_phdr_cnt++;
-            // alloc space and copy content
-            uint64 start_vpg = PGROUNDDOWN(phdr->p_vaddr);
-            uint64 end_vpg = PGROUNDUP(phdr->p_vaddr + phdr->p_memsz);
-            uint64 start_offset = phdr->p_vaddr - start_vpg;
-            uint64 pg_num = (end_vpg - start_vpg) / PGSIZE;
-            uint64 perm = trans_p_flags(phdr->p_flags) | PTE_V | PTE_U;
-            uint64 uapp_mem = alloc_pages(pg_num);
-            // copy content
-            memcpy((void *)(uapp_mem + start_offset), (void *)(_sramdisk + phdr->p_offset), phdr->p_filesz);
-            // clear [p_vaddr + p_filesz, p_vaddr + p_memsz) for .bss section
-            memset((void *)(uapp_mem + start_offset + phdr->p_filesz), 0, phdr->p_memsz - phdr->p_filesz);
-            // do mapping
-            uint64 va = start_vpg;
-            uint64 pa = uapp_mem - PA2VA_OFFSET;
-            create_mapping((uint64 *)pgd, start_vpg, pa, pg_num * PGSIZE, perm);
+
+            // create mmap for the PT_LOAD segment
+            // it is not an anonymous mmap, so we only need to consider X/W/R
+            uint64_t vm_flags = trans_p_flags(phdr->p_flags);
+            do_mmap(task, phdr->p_vaddr, phdr->p_memsz, vm_flags, phdr->p_offset, phdr->p_filesz);
         }
     }
 
-    // allocate user stack and do mapping
-    uint64 user_stack = (uint64)alloc_page();
-    uint64 va = USER_END - PGSIZE;
-    uint64 pa = user_stack - PA2VA_OFFSET;
-    create_mapping((uint64 *)pgd, va, pa, PGSIZE, PTE_V | PTE_R | PTE_W | PTE_U);
+    // create mmap for the stack
+    do_mmap(task, USER_END - PGSIZE, PGSIZE, VM_ANONYM | VM_R_MASK | VM_W_MASK, 0, 0);
 
     // following code has been written for you
     // set ra for the user program
-    task->thread.ra = (uint64)__dummy;
+    task->thread.ra = (uint64_t)__dummy;
     // set user stack
-    task->thread.sp = (uint64)task + PGSIZE;
+    task->thread.sp = (uint64_t)task + PGSIZE;
     // pc for the user program
     task->thread.sepc = ehdr->e_entry;
     // sstatus bits set
