@@ -7,8 +7,6 @@
 #include "test.h"
 #include "string.h"
 
-//arch/riscv/kernel/proc.c
-
 extern void __switch_to(struct task_struct *prev, struct task_struct *next);
 extern uint64_t load_program(struct task_struct *task);
 
@@ -29,8 +27,6 @@ void task_init() {
     // 3. 由于 idle 不参与调度 可以将其 counter / priority 设置为 0
     // 4. 设置 idle 的 pid 为 0
     // 5. 将 current 和 task[0] 指向 idle
-
-    /* YOUR CODE HERE */
     idle = (struct task_struct*)kalloc();
     idle->state = TASK_RUNNING;
     idle->counter = 0;
@@ -41,35 +37,28 @@ void task_init() {
     task[0] = idle;
 
 
-    // 1. 参考 idle 的设置, 为 task[1] ~ task[NR_TASKS - 1] 进行初始化
+    // 1. 参考 idle 的设置, 为 task[1] 进行初始化
     // 2. 其中每个线程的 state 为 TASK_RUNNING, 此外，为了单元测试的需要，counter 和 priority 进行如下赋值：
     //      task[i].counter  = task_test_counter[i];
     //      task[i].priority = task_test_priority[i];
-    // 3. 为 task[1] ~ task[NR_TASKS - 1] 设置 `thread_struct` 中的 `ra` 和 `sp`,
+    // 3. 设置 `thread_struct` 中的 `ra` 和 `sp`,
     // 4. 其中 `ra` 设置为 __dummy （见 4.3.2）的地址,  `sp` 设置为 该线程申请的物理页的高地址
+    struct task_struct *task_ptr = (struct task_struct*)kalloc();
+    task_ptr->state = TASK_RUNNING;
+    task_ptr->counter = task_test_counter[1];
+    task_ptr->priority = task_test_priority[1];
+    task_ptr->pid = 1;
 
-    /* YOUR CODE HERE */
-    for (int i = 1; i < NR_TASKS; i++) {
-        struct task_struct *task_ptr = (struct task_struct*)kalloc();
-        task_ptr->state = TASK_RUNNING;
-        task_ptr->counter = task_test_counter[i];
-        task_ptr->priority = task_test_priority[i];
-        task_ptr->pid = i;
-
-        if (load_program(task_ptr) == -1) {
-            printk("Load program failed\n");
-            return;
-        }
-
-        task[i] = task_ptr;
+    if (load_program(task_ptr) == -1) {
+        printk("Load program failed\n");
+        return;
     }
 
-    for (int i = 1; i < NR_TASKS; i++) {
-    #ifdef SJF
-        printk("[S-MODE] SET [PID = %d COUNTER = %d]\n", task[i]->pid, task[i]->counter);
-    #else
-        printk("[S-MODE] SET [PID = %d PRIORITY = %d COUNTER = %d]\n", task[i]->pid, task[i]->priority, task[i]->counter);
-    #endif
+    task[1] = task_ptr;
+
+    // 将其他的 task[i] 初始化为 NULL，用于标记该线程未被创建
+    for (int i = 2; i < NR_TASKS; i++) {
+        task[i] = NULL;
     }
 
     printk("...proc_init done!\n");

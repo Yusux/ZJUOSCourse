@@ -76,7 +76,9 @@ _switched_to_kernel_stack:
     jal ra, trap_handler
 
     # -----------
-
+    
+    .global __ret_from_fork
+__ret_from_fork:
     # 3. restore scause sscratch stval sstatus sepc
     # and 32 registers from stack
     ld t0,  288(sp)

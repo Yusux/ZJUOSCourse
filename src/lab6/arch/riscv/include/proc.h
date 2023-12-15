@@ -3,7 +3,7 @@
 #include "types.h"
 #include "stdint.h"
 
-#define NR_TASKS  (1 + 4) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
+#define NR_TASKS  (1 + 15) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
 
 #define TASK_RUNNING    0 // 为了简化实验, 所有的线程都只有一种状态
 
@@ -46,14 +46,14 @@ struct vm_area_struct {
 
 /* 线程数据结构 */
 struct task_struct {
-    uint64_t state;    // 线程状态
-    uint64_t counter;  // 运行剩余时间
-    uint64_t priority; // 运行优先级 1最低 10最高
-    uint64_t pid;      // 线程id
+    uint64_t state;     // 线程状态
+    uint64_t counter;   // 运行剩余时间
+    uint64_t priority;  // 运行优先级 1最低 10最高
+    uint64_t pid;       // 线程id
 
     struct thread_struct thread;
 
-    pagetable_t pgd;    // 第一级页表
+    pagetable_t pgd;    // 第一级页表的物理地址
 
     uint64_t vma_cnt;                       /* 下面这个数组里的元素的数量 */
     struct vm_area_struct vmas[0];          /* 为什么可以开大小为 0 的数组?

@@ -50,6 +50,8 @@
 #define PPN1(addr) (((addr) >> 21) & 0x1ff)
 #define PPN2(addr) (((addr) >> 30) & 0x3ffffff)
 
+#define PTE2PA(pte) ((((pte) >> 10) & 0xfffffffffff) << 12)
+
 #define PTE_V (0x01)
 #define PTE_R (0x02)
 #define PTE_W (0x04)
