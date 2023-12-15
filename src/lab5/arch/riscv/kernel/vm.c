@@ -31,6 +31,66 @@ void setup_vm(void) {
     early_pgtbl[index] = (PPN2(pa) << 28) | PTE_V | PTE_R | PTE_W | PTE_X;
 }
 
+uint64_t walk_page_table(uint64_t *pgtbl, uint64_t va, uint64_t is_create) {
+    /*
+    用于在三级页表中查找 va 对应的 page table entry
+    1. 在 is_create 为 1 的情况下，
+       若一二级页表的 entry 不存在，分配一个页作为 entry
+       最终返回三级页表的 entry 地址
+    2. 在 is_create 为 0 的情况下，
+       若找到，返回该三级页表的 entry
+       否则返回 0x1
+       （因为 0x1 不可能是一个合法的三级页表 entry 的地址）
+    */
+    uint64_t *current_pgtbl, *current_pte, current_index;
+
+    // first level page table
+    current_pgtbl = pgtbl;                          // get root page table
+    current_index = VPN2(va);                       // get index of root page table
+    current_pte = &current_pgtbl[current_index];    // get page table entry
+    
+    if ((*current_pte & PTE_V) == 0) {  // check if page table entry is valid
+        // if not valid
+        if (is_create) {
+            // if is_create, allocate a page for page table
+            uint64_t *new_pgtbl = (uint64_t *)(kalloc() - PA2VA_OFFSET);            // get physical address of new page table
+            *current_pte = (PPN((uint64_t)new_pgtbl) << 10) | PTE_V;
+        } else {
+            // if not is_create, return 0x1
+            return 0x1;
+        }
+    }
+
+    // second level page table
+    current_pgtbl = (uint64_t *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);    // get second level page table
+    current_index = VPN1(va);                                                   // get index of second level page table
+    current_pte = &current_pgtbl[current_index];                                // get page table entry
+
+    if ((*current_pte & PTE_V) == 0) {  // check if page table entry is valid
+        // if not valid
+        if (is_create) {
+            // if is_create, allocate a page for page table
+            uint64_t *new_pgtbl = (uint64_t *)(kalloc() - PA2VA_OFFSET);            // get physical address of new page table
+            *current_pte = (PPN((uint64_t)new_pgtbl) << 10) | PTE_V;
+        } else {
+            // if not is_create, return 0x1
+            return 0x1;
+        }
+    }
+
+    // third level page table
+    current_pgtbl = (uint64_t *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);    // get third level page table
+    current_index = VPN0(va);                                                   // get index of third level page table
+    current_pte = &current_pgtbl[current_index];                                // get page table entry
+
+    // if not is_create and page table entry is not valid, return 0x1
+    if (!is_create && ((*current_pte & PTE_V) == 0)) {
+        return 0x1;
+    }
+
+    return (uint64_t)current_pte;
+}
+
 /**** 创建多级页表映射关系 *****/
 /* 不要修改该接口的参数和返回值 */
 void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm) {
@@ -44,35 +104,10 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm)
     可以使用 V bit 来判断页表项是否存在
     */
     uint64 pa_end = pa + sz;
-    uint64 *current_pgtbl, *current_pte, current_index;
+    uint64 *current_pte;
     while (pa < pa_end) {
-        // first level page table
-        current_pgtbl = pgtbl;                          // get root page table
-        current_index = VPN2(va);                       // get index of root page table
-        current_pte = &current_pgtbl[current_index];    // get page table entry
-        
-        if ((*current_pte & PTE_V) == 0) {  // check if page table entry is valid
-            // if not valid, allocate a page for page table
-            uint64 *new_pgtbl = (uint64 *)(kalloc() - PA2VA_OFFSET);    // get physical address of new page table
-            *current_pte = (PPN((uint64)new_pgtbl) << 10) | PTE_V;
-        }
-
-        // second level page table
-        current_pgtbl = (uint64 *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);    // get second level page table
-        current_index = VPN1(va);                                                   // get index of second level page table
-        current_pte = &current_pgtbl[current_index];                                // get page table entry
-
-        if ((*current_pte & PTE_V) == 0) {  // check if page table entry is valid
-            // if not valid, allocate a page for page table
-            uint64 *new_pgtbl = (uint64 *)(kalloc() - PA2VA_OFFSET);    // get physical address of new page table
-            *current_pte = (PPN((uint64)new_pgtbl) << 10) | PTE_V;
-        }
-
-        // third level page table
-        current_pgtbl = (uint64 *)(((*current_pte >> 10) << 12) + PA2VA_OFFSET);    // get third level page table
-        current_index = VPN0(va);                                                   // get index of third level page table
-        current_pte = &current_pgtbl[current_index];                                // get page table entry
-
+        // get page table entry
+        current_pte = (uint64 *)walk_page_table(pgtbl, va, 1);
         *current_pte = (PPN(pa) << 10) | perm | PTE_V;                          // cover page table entry
 
         // allocated a page, add the PGSIZE

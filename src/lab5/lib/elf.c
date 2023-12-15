@@ -9,7 +9,6 @@ extern unsigned long swapper_pg_dir[];  // kernel pagetable root, mapped in setu
 extern char _sramdisk[];                // start address of the ELF file in memory
 
 extern void __dummy();
-extern void create_mapping(uint64_t *pgtbl, uint64_t va, uint64_t pa, uint64_t sz, uint64_t perm);
 
 uint64_t trans_p_flags(Elf64_Word p_flags) {
     // convert ELF flags to PTE/VM XWR flags
