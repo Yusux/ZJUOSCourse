@@ -23,9 +23,13 @@ void do_page_fault(struct pt_regs *regs) {
     // 如果没有找到 vma
     if (vma == NULL) {
         printk("[S-MODE] Page fault at %lx, badaddr is %lx\n", regs->sepc, bad_addr);
+        printk("[S-MODE] sepc: %lx, scause: %lx, stval: %lx\n", regs->sepc, regs->scause, regs->stval);
         printk("[S-MODE] Cannot find vma\n");
         while (1);
     } else { // 如果找到了 vma
+        printk("[S-MODE] Page fault at %lx, badaddr is %lx\n", regs->sepc, bad_addr);
+        printk("[S-MODE] sepc: %lx, scause: %lx, stval: %lx\n", regs->sepc, regs->scause, regs->stval);
+        printk("[S-MODE] Find vma: start = %lx, end = %lx\n", vma->vm_start, vma->vm_end);
         // 分配一个页
         uint64_t page = (uint64_t)alloc_page();
         memset((void *)page, 0, PGSIZE);

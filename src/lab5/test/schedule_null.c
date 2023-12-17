@@ -25,7 +25,7 @@ void test_init(int num_tasks) {
         }
 
         priority = (priority * 5) % 97;
-        task_test_priority[i] = priority;
+        task_test_priority[i] = priority % 10 + 1;
 
         counter = (counter * 5) % 193;
         task_test_counter[i] = counter % 13 + 1;
