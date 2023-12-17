@@ -116,7 +116,7 @@ uint64_t sys_clone(struct pt_regs *regs) {
             // 检查是否需要创建页表
             uint64_t parent_pte_addr = walk_page_table((uint64_t *)parent_pgd, va, 0);
             if (parent_pte_addr != 0x1) {
-                printk("sys_clone: find parent pte to copy\n");
+                // printk("sys_clone: find parent pte to copy, page range: [%lx, %lx]\n", va, va + PGSIZE);
                 // 如果在 parent task 的页表中找到了对应的页表项
                 // 则深拷贝这一页
                 // 获取 parent task 中的页表项代表的物理页的虚拟地址
