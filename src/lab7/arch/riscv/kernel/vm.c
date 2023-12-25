@@ -1,6 +1,7 @@
 #include "defs.h"
 #include "mm.h"
 #include "string.h"
+#include "virtio.h"
 
 /* early_pgtbl: 用于 setup_vm 进行 1GB 的 映射。 */
 unsigned long  early_pgtbl[512] __attribute__((__aligned__(0x1000)));
@@ -137,6 +138,9 @@ void setup_vm_final(void) {
     // mapping other memory -|W|R|V
     va += sdata - srodata;
     create_mapping(swapper_pg_dir, va, sdata, PHY_END - sdata, PTE_R | PTE_W | PTE_V);
+
+    // mapping VIRTUAL IO -|W|R|V
+    create_mapping(swapper_pg_dir, io_to_virt(VIRTIO_START), VIRTIO_START, VIRTIO_SIZE * VIRTIO_COUNT, PTE_W | PTE_R | PTE_V);
 
     // set satp with swapper_pg_dir
     uint64_t satp_val = (8L << 60) | PPN((uint64_t)swapper_pg_dir - PA2VA_OFFSET);

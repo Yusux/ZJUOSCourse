@@ -5,6 +5,7 @@
 // #include <fs.h>
 #include <fs.h>
 
+#define FAT32_ENTRY_PER_SECTOR (VIRTIO_BLK_SECTOR_SIZE / sizeof(struct fat32_dir_entry))
 
 struct __attribute__((packed)) fat32_bpb {
     uint8_t jmp_boot[3];
@@ -42,7 +43,7 @@ struct fat32_volume {
     uint64_t first_data_sec;
     uint64_t first_fat_sec;
     uint64_t sec_per_cluster;
-    uint64_t fat_sz;
+    uint64_t fat_sz;            // total size of fat (in sectors)
 };
 
 struct fat32_dir_entry {
@@ -74,7 +75,5 @@ struct fat32_file fat32_open_file(const char *path);
 int64_t fat32_lseek(struct file* file, int64_t offset, uint64_t whence);
 int64_t fat32_write(struct file* file, const void* buf, uint64_t len);
 int64_t fat32_read(struct file* file, void* buf, uint64_t len);
-
-#define FAT32_ENTRY_PER_SECTOR (VIRTIO_BLK_SECTOR_SIZE / sizeof(struct fat32_dir_entry))
 
 #endif

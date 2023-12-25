@@ -22,8 +22,8 @@ void do_page_fault(struct pt_regs *regs) {
 
     // 如果没有找到 vma
     if (vma == NULL) {
-        printk("[S-MODE] Page fault at %lx, badaddr is %lx\n", regs->sepc, bad_addr);
-        printk("[S-MODE] Cannot find vma\n");
+        printk("[S] Page fault at %lx, badaddr is %lx\n", regs->sepc, bad_addr);
+        printk("[S] Cannot find vma\n");
         while (1);
     } else { // 如果找到了 vma
         // 分配一个页
@@ -94,7 +94,7 @@ void trap_handler(unsigned long scause, unsigned long sepc, struct pt_regs *regs
         }
     }
 
-    printk("[S-MODE] Unhandled trap, ");
+    printk("[S] Unhandled trap, ");
     printk("scause: %lx, ", scause);
     printk("stval: %lx, ", regs->stval);
     printk("sepc: %lx\n", regs->sepc);

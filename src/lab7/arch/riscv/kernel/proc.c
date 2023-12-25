@@ -6,6 +6,8 @@
 #include "printk.h"
 #include "test.h"
 #include "string.h"
+#include "virtio.h"
+#include "mbr.h"
 
 extern void __switch_to(struct task_struct *prev, struct task_struct *next);
 extern uint64_t load_program(struct task_struct *task);
@@ -62,6 +64,9 @@ void task_init() {
     }
 
     printk("...proc_init done!\n");
+
+    virtio_dev_init();
+    mbr_init();
 }
 
 void switch_to(struct task_struct* next) {
@@ -71,7 +76,7 @@ void switch_to(struct task_struct* next) {
     if (next != current) {
         struct task_struct *prev = current;
         current = next;
-        // printk("[S-MODE] switch to [PID = %d, PRIORITY = %d, COUNTER = %d]\n", current->pid, current->priority, current->counter);
+        // printk("[S] switch to [PID = %d, PRIORITY = %d, COUNTER = %d]\n", current->pid, current->priority, current->counter);
         __switch_to(prev, next);
     }
 }
@@ -127,7 +132,7 @@ void schedule(void) {
         for ( ; p > task_start; --p) {
             if (*p) {
                 (*p)->counter = rand() % 13 + 1;
-                // printk("[S-MODE] SET [PID = %d COUNTER = %d]\n", (*p)->pid, (*p)->counter);
+                // printk("[S] SET [PID = %d COUNTER = %d]\n", (*p)->pid, (*p)->counter);
             }
         }
     }
@@ -162,7 +167,7 @@ void schedule(void) {
         for ( ; p < task_end; ++p) {
             if (*p) {
                 (*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
-                // printk("[S-MODE] SET [PID = %d PRIORITY = %d COUNTER = %d]\n", (*p)->pid, (*p)->priority, (*p)->counter);
+                // printk("[S] SET [PID = %d PRIORITY = %d COUNTER = %d]\n", (*p)->pid, (*p)->priority, (*p)->counter);
             }
         }
     }

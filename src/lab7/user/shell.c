@@ -110,7 +110,7 @@ void parse_cmd(char* cmd, int len) {
                 if (cat_buf[i] == 0) {
                     write(1, "x", 1);
                 } else {
-                    write (1, &cat_buf[i], 1);
+                    write(1, &cat_buf[i], 1);
                 }
                 // printf("%c", cat_buf[i]);
                 last_char = cat_buf[i];
@@ -159,9 +159,9 @@ void parse_cmd(char* cmd, int len) {
         int offset_int = atoi(offset);
 
 
-        printf("%s\n", filename);
-        printf("%d\n", offset_int);
-        printf("%s\n", content);
+        // printf("%s\n", filename);
+        // printf("%d\n", offset_int);
+        // printf("%s\n", content);
 
         // while (1);
         int fd = open(filename, O_RDWR);

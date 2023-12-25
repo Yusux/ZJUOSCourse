@@ -3,6 +3,7 @@
 #include "defs.h"
 #include "string.h"
 #include "mm.h"
+#include "fat32.h"
 
 extern struct task_struct *current;
 extern struct task_struct *task[NR_TASKS];  // 线程数组, 所有的线程都保存在此
@@ -13,6 +14,66 @@ extern unsigned long swapper_pg_dir[];      // kernel pagetable root, mapped in 
 extern void __ret_from_fork();
 extern uint64_t walk_page_table(uint64_t *pgtbl, uint64_t va, uint64_t is_create);
 extern void create_mapping(uint64_t *pgtbl, uint64_t va, uint64_t pa, uint64_t sz, uint64_t perm);
+extern uint32_t get_fs_type(const char* filename);
+
+// 实现 sys_openat
+int64_t sys_openat(int dfd, const char* filename, int flags) {
+    // dfd 是一个文件描述符，表示当前进程打开的目录
+    // 由于本次实验不要求实现目录，所以 dfd 暂时无用
+    int fd = -1;
+
+    // 找到一个空闲的文件描述符
+    for (int i = 0; i < PGSIZE / sizeof(struct file); i++) {
+        if (!current->files[i].opened) {
+            fd = i;
+            break;
+        }
+    }
+
+    // 如果没有空闲的文件描述符，则返回 -1
+    if (fd == -1) {
+        printk("No available file descriptor\n");
+        return -1;
+    }
+
+    // 进行实际的文件打开操作
+    file_open(&(current->files[fd]), filename, flags);
+
+    return fd;
+}
+
+// 实现 sys_close
+int64_t sys_close(int fd) {
+    int64_t ret;
+    struct file* target_file = &(current->files[fd]);
+    if (target_file->opened) {
+        target_file->opened = 0;
+        ret = 0;
+    } else {
+        printk("file not open\n");
+        ret = ERROR_FILE_NOT_OPEN;
+    }
+    return ret;
+}
+
+// 实现 sys_close
+int64_t sys_lseek(int fd, int64_t offset, int whence) {
+    int64_t ret;
+    struct file* target_file = &(current->files[fd]);
+    if (target_file->opened) {
+        // check if the file is readable
+        if ((target_file->perms & FILE_READABLE) || (target_file->perms & FILE_WRITABLE)) {
+            ret = target_file->lseek(target_file, offset, whence);
+        } else {
+            printk("file not readable or writable\n");
+            ret = ERROR_FILE_NOT_OPEN;
+        }
+    } else {
+        printk("file not open\n");
+        ret = ERROR_FILE_NOT_OPEN;
+    }
+    return ret;
+}
 
 // 实现 sys_read
 int64_t sys_read(unsigned int fd, char* buf, uint64_t count) {
@@ -21,8 +82,12 @@ int64_t sys_read(unsigned int fd, char* buf, uint64_t count) {
     if (target_file->opened) {
         // check if the file is readable
         if (target_file->perms & FILE_READABLE) {
-            target_file->read(target_file, buf, count);
-            ret = count;
+            /*
+             * !! BE CAREFUL !!
+             * THE NUMBER OF BYTES READ MAY BE LESS THAN COUNT
+             * CANNOT RETURN COUNT DIRECTLY
+             */
+            ret = target_file->read(target_file, buf, count);
         } else {
             printk("file not readable\n");
             ret = ERROR_FILE_NOT_OPEN;
@@ -42,8 +107,12 @@ int64_t sys_write(unsigned int fd, const char *buf, size_t count) {
     if (target_file->opened) {
         // check if the file is writable
         if (target_file->perms & FILE_WRITABLE) {
-            target_file->write(target_file, buf, count);
-            ret = count;
+            /*
+             * !! BE CAREFUL !!
+             * THE NUMBER OF BYTES WRITTEN MAY BE LESS THAN COUNT
+             * CANNOT RETURN COUNT DIRECTLY
+             */
+            ret = target_file->write(target_file, buf, count);
         } else {
             printk("file not writable\n");
             ret = ERROR_FILE_NOT_OPEN;
@@ -172,16 +241,32 @@ uint64_t sys_clone(struct pt_regs *regs) {
 void syscall(struct pt_regs *regs) {
     int return_value = 0;
     switch (regs->x[17]) {
+        case SYS_OPENAT:
+            // printk("\nsyscall: openat\n");
+            return_value = sys_openat(regs->x[10], (const char*)regs->x[11], regs->x[12]);
+            break;
+        case SYS_CLOSE:
+            // printk("\nsyscall: close\n");
+            return_value = sys_close(regs->x[10]);
+            break;
+        case SYS_LSEEK:
+            // printk("\nsyscall: lseek\n");
+            return_value = sys_lseek(regs->x[10], regs->x[11], regs->x[12]);
+            break;
         case SYS_READ:
+            // printk("\nsyscall: read\n");
             return_value = sys_read(regs->x[10], (char*)regs->x[11], regs->x[12]);
             break;
         case SYS_WRITE:
+            // printk("\nsyscall: write\n");
             return_value = sys_write(regs->x[10], (const char*)regs->x[11], regs->x[12]);
             break;
         case SYS_GETPID:
+            // printk("\nsyscall: getpid\n");
             return_value = sys_getpid();
             break;
         case SYS_CLONE:
+            // printk("\nsyscall: clone\n");
             return_value = sys_clone(regs);
             break;
         default:
