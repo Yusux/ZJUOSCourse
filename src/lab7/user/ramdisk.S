@@ -1,4 +1,4 @@
-.section .ramdisk
+.section .uapp
 
 .incbin "uapp"
 

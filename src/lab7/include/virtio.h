@@ -2,7 +2,6 @@
 #define _VIRTIO_H
 
 #include <defs.h>
-#include <vm.h>
 #include <printk.h>
 
 #define DEVICE_ACKNOWLEDGE 1
@@ -191,6 +190,10 @@ static inline void memory_barrier() {
 
 static inline uint64_t io_to_virt(uint64_t pa) {
     return pa + IOMAP_OFFSET;
+}
+
+static inline uint64_t virt_to_phys(uint64_t va) {
+    return va - PA2VA_OFFSET;
 }
 
 #endif

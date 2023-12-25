@@ -1,7 +1,6 @@
 #include <virtio.h>
 #include <mm.h>
 #include <debug.h>
-#include <clock.h>
 
 volatile struct virtio_regs * virtio_blk_regs = NULL;
 struct vring virtio_blk_ring;
