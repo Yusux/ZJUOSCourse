@@ -14,18 +14,45 @@ extern void __ret_from_fork();
 extern uint64_t walk_page_table(uint64_t *pgtbl, uint64_t va, uint64_t is_create);
 extern void create_mapping(uint64_t *pgtbl, uint64_t va, uint64_t pa, uint64_t sz, uint64_t perm);
 
-// 实现 sys_write
-size_t sys_write(unsigned int fd, const char *buf, size_t count) {
-    // 只考虑标准输出
-    if (fd == 1) {
-        for (size_t i = 0; i < count; i++) {
-            printk("%c", buf[i]);
+// 实现 sys_read
+int64_t sys_read(unsigned int fd, char* buf, uint64_t count) {
+    int64_t ret;
+    struct file* target_file = &(current->files[fd]);
+    if (target_file->opened) {
+        // check if the file is readable
+        if (target_file->perms & FILE_READABLE) {
+            target_file->read(target_file, buf, count);
+            ret = count;
+        } else {
+            printk("file not readable\n");
+            ret = ERROR_FILE_NOT_OPEN;
         }
-        return count;
     } else {
-        printk("Unsupported fd: %d\n", fd);
-        return -1;
+        printk("file not open\n");
+        ret = ERROR_FILE_NOT_OPEN;
     }
+    return ret;
+}
+
+// 实现 sys_write
+int64_t sys_write(unsigned int fd, const char *buf, size_t count) {
+    int64_t ret;
+    // get current file struct
+    struct file* target_file = &(current->files[fd]);
+    if (target_file->opened) {
+        // check if the file is writable
+        if (target_file->perms & FILE_WRITABLE) {
+            target_file->write(target_file, buf, count);
+            ret = count;
+        } else {
+            printk("file not writable\n");
+            ret = ERROR_FILE_NOT_OPEN;
+        }
+    } else {
+        printk("file not open\n");
+        ret = ERROR_FILE_NOT_OPEN;
+    }
+    return ret;
 }
 
 // 实现 sys_getpid
@@ -145,6 +172,9 @@ uint64_t sys_clone(struct pt_regs *regs) {
 void syscall(struct pt_regs *regs) {
     int return_value = 0;
     switch (regs->x[17]) {
+        case SYS_READ:
+            return_value = sys_read(regs->x[10], (char*)regs->x[11], regs->x[12]);
+            break;
         case SYS_WRITE:
             return_value = sys_write(regs->x[10], (const char*)regs->x[11], regs->x[12]);
             break;

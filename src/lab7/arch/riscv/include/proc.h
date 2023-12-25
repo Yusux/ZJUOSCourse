@@ -1,7 +1,9 @@
 // arch/riscv/include/proc.h
 #pragma once
+
 #include "types.h"
 #include "stdint.h"
+#include "fs.h"
 
 #define NR_TASKS  (1 + 15) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
 
@@ -54,6 +56,7 @@ struct task_struct {
     struct thread_struct thread;
 
     pagetable_t pgd;    // 第一级页表的物理地址
+    struct file *files; // 线程打开的文件
 
     uint64_t vma_cnt;                       /* 下面这个数组里的元素的数量 */
     struct vm_area_struct vmas[0];          /* 为什么可以开大小为 0 的数组?

@@ -53,7 +53,7 @@ void task_init() {
         printk("Load program failed\n");
         return;
     }
-
+    task_ptr->files = file_init();
     task[1] = task_ptr;
 
     // 将其他的 task[i] 初始化为 NULL，用于标记该线程未被创建

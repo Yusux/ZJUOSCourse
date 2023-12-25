@@ -32,10 +32,10 @@ struct fat32_file {
 
 // Opened file in a thread.
 struct file {
-    uint32_t opened;
-    uint32_t perms;
-    int64_t cfo;
-    uint32_t fs_type;
+    uint32_t opened;    // 0: not opened, 1: opened
+    uint32_t perms;     // FILE_READABLE, FILE_WRITABLE
+    int64_t cfo;        // current file offset
+    uint32_t fs_type;   // FS_TYPE_FAT32, FS_TYPE_EXT2
 
     union {
         struct fat32_file fat32_file;
