@@ -58,3 +58,4 @@ dkms.conf
 src/lab1/others
 .DS_Store
 **/.DS_Store
+.vscode-ctags
