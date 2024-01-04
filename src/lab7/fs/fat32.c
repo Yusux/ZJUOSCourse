@@ -116,9 +116,9 @@ struct fat32_file fat32_open_file(const char *path) {
         uint64_t sector = cluster_to_sector(cluster);
         // traverse the cluster to find the file
         for (int i = 0; i < fat32_volume.sec_per_cluster; i++) {
-            // load the sector to fat32_buf
-            virtio_blk_read_sector(sector + i, fat32_buf);
-            struct fat32_dir_entry *dir_entry = (struct fat32_dir_entry *)fat32_buf;
+            // load the sector to fat32_table_buf
+            virtio_blk_read_sector(sector + i, fat32_table_buf);
+            struct fat32_dir_entry *dir_entry = (struct fat32_dir_entry *)fat32_table_buf;
             for (int j = 0; j < FAT32_ENTRY_PER_SECTOR; j++) {
                 if (dir_entry[j].name[0] == 0x00) {
                     // no more files
@@ -138,7 +138,7 @@ struct fat32_file fat32_open_file(const char *path) {
                     // fill the fat32_file struct
                     file.cluster = (dir_entry[j].starthi << 16) | dir_entry[j].startlow;
                     file.dir.cluster = cluster;
-                    file.dir.index = j;
+                    file.dir.index = i * FAT32_ENTRY_PER_SECTOR + j;
                     break;
                 }
             }
@@ -161,7 +161,6 @@ struct fat32_file fat32_open_file(const char *path) {
         while (1);
     }
 
-    // check the dir_entry
     return file;
 }
 

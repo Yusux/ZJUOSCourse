@@ -56,7 +56,7 @@ int64_t sys_close(int fd) {
     return ret;
 }
 
-// 实现 sys_close
+// 实现 sys_lseek
 int64_t sys_lseek(int fd, int64_t offset, int whence) {
     int64_t ret;
     struct file* target_file = &(current->files[fd]);
