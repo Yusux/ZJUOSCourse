@@ -6,6 +6,25 @@
     .section .text.init
     .globl _start
 _start:
+    # ------------------
+    # - your lab1 code -
+    # ------------------
+
+    # let sp point to the top of the stack
+    la sp, boot_stack_top
+
+    # ------------------
+    # - your lab2 code -
+    # ------------------
+    # do work after stack is ready
+
+    # call mm_init to init memory system
+    jal mm_init
+
+    # call task_init to init tasks
+    jal task_init
+
+    
     # YOUR CODE HERE
 
     # ------------------
@@ -41,24 +60,6 @@ _start:
     csrw sstatus, t0
 
     # ------------------
-
-    # ------------------
-    # - your lab1 code -
-    # ------------------
-
-    # let sp point to the top of the stack
-    la sp, boot_stack_top
-
-    # ------------------
-    # - your lab2 code -
-    # ------------------
-    # do work after stack is ready
-
-    # call mm_init to init memory system
-    jal mm_init
-
-    # call task_init to init tasks
-    jal task_init
 
     # jump to kernel entry
     jal zero, start_kernel
