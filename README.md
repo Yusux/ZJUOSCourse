@@ -1,3 +1,20 @@
-# os23fall-stu
+# 2023-Fall OS Experiments
 
-浙江大学操作系统课程学生版仓库
+
+
+## Overview
+
+This repository is used to store the code of the OS experiments in 2023 Fall.
+
+
+
+### Main Tools
+
+- QEMU
+- GNU RISC-V Toolchain
+
+
+
+## License
+
+This repository is licensed under the MIT License. See `LICENSE` for more information.
